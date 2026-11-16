@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: beauty
+      POSTGRES_PASSWORD: beauty
+      POSTGRES_DB: beauty
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U beauty"]
+      interval: 5s
+      retries: 10
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg2://beauty:beauty@db:5432/beauty
+      SECRET_KEY: change-me-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+volumes:
+  dbdata:
